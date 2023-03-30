@@ -1,14 +1,14 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
-import Home from "../views/Home.vue";
+import Form from "../views/Form.vue";
 
 Vue.use(VueRouter);
 
-const routes: Array<RouteConfig> = [
+export const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Home",
-    component: Home,
+    name: "Form",
+    component: Form,
   },
   {
     path: "/about",

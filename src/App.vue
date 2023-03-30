@@ -1,19 +1,30 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+      <span v-for="item in routes" :key="item.name">
+        <router-link :to="item.path">{{ item.name }}</router-link> |
+      </span>
     </div>
     <router-view />
   </div>
 </template>
-
+<script>
+import { routes } from "./router";
+export default {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  data() {
+    return {
+      routes,
+    };
+  },
+};
+</script>
 <style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  // text-align: center;
   color: #2c3e50;
 }
 
