@@ -26,19 +26,24 @@
   </div>
 </template>
 <script lang="ts">
+type Tag = {
+  [key: string]: string | number;
+};
+type Tags = Tag[];
+
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-type Tag = { [key: string]: string | number };
+
 @Component({
   name: "TagSearch",
 })
 export default class extends Vue {
-  @Prop({ default: [] }) value!: Array<Tag>;
+  @Prop({ default: [] }) value!: Tags;
   @Prop({ default: "name" }) showFlag!: string;
 
-  public list: Tag[] = [];
+  public list: Tags = [];
 
   @Watch("value", { immediate: true })
-  onMyListChange(newVal: []) {
+  onMyListChange(newVal: Tags) {
     this.list = newVal;
   }
 
