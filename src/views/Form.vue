@@ -93,7 +93,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit('form')">立即创建</el-button>
-        <el-button>取消</el-button>
+        <el-button @click="$emit('submit')">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -104,6 +104,7 @@ import { Component, Vue } from "vue-property-decorator";
 import { Form } from "element-ui";
 
 import TagsSelectVue from "@/components/TagsSelect.vue";
+import { asDialog } from "@/components/asDialog.js";
 let tagIndex = 0;
 @Component({
   components: {
@@ -111,6 +112,7 @@ let tagIndex = 0;
   },
 })
 export default class Home extends Vue {
+  Dialog = null;
   form = {
     name: "",
     money: 0,
@@ -147,7 +149,14 @@ export default class Home extends Vue {
       },
     ],
   };
+  beforeDestroy() {
+    console.log("🚀 ~ beforeDestroy:");
+  }
+
   handleTagesSelect() {
+    this.Dialog = asDialog("async-form", () => this.onSubmit("form"));
+    this.Dialog.open();
+    console.log("🚀 ~ Dialog:", this.Dialog)
     let list = this.form.tages as unknown as { id: number; name222: string }[];
     // 模拟从弹窗选出来的数据
     let res = [
