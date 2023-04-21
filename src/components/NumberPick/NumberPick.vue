@@ -17,7 +17,12 @@
     <a class="datepicker-close" @click.stop="cls"></a>
     <transition name="datepicker-anim">
       <div class="datepicker-popup" tabindex="-1" v-if="show">
-        <DataPick v-model="datas" :type="type" @click="handleClick"></DataPick>
+        <DataPick
+          v-model="datas"
+          :days="days"
+          :type="type"
+          @click="handleClick"
+        ></DataPick>
       </div>
     </transition>
   </div>
@@ -33,6 +38,15 @@ export default {
     value: {
       type: [Array, Number, String],
       require: true,
+    },
+    days: {
+      type: Array,
+      default: () => {
+        return [
+          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+          21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+        ];
+      },
     },
     type: {
       type: String, //"single" | "multiple" | "range"
