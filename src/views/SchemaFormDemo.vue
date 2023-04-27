@@ -1,33 +1,41 @@
 <template>
   <div>
-    <button @click="fn1">改变data的值</button>
-    <button @click="fn2">改变fileds的值</button>
-    <SchemaForm ref="SchemaForm" :formSchema="formSchema" :data="fromData">
-      <template #status="{ formData, schema }">
-        <el-select v-model="formData[schema.name]" placeholder="请选择">
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+    <section style="display: flex; align-items: start">
+      <SchemaFormDemoTest @emit="handleTestChange" style="width: 300px" />
+      <section>
+        <SchemaForm ref="SchemaForm" :formSchema="formSchema" :data="formData">
+          <template #status="{ formData, schema }">
+            <el-select v-model="formData[schema.name]" placeholder="请选择">
+              <el-option
+                v-for="item in formInitData.options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </template>
+        </SchemaForm>
+        <div style="text-align: center">
+          <el-button type="primary" @click="submitForm('ruleForm')"
+            >立即创建</el-button
           >
-          </el-option>
-        </el-select>
-      </template>
-    </SchemaForm>
-    <div>
-      <el-button type="primary" @click="submitForm('ruleForm')"
-        >立即创建</el-button
-      >
-      <el-button @click="resetForm('ruleForm')">重置</el-button>
-    </div>
-    {{ JSON.stringify(this.fromData) }}
+          <el-button @click="resetForm('ruleForm')">重置</el-button>
+        </div>
+      </section>
+    </section>
+    <section>
+      {{ JSON.stringify(this.formData) }}
+    </section>
   </div>
 </template>
 <script>
 import SchemaForm from "../components/SchemaForm/SchemaForm.vue";
+import SchemaFormDemoTest from "./SchemaFormDemoTest.vue";
+import SchemaFormDemoTestMixin from "./SchemaFormDemoTestMixin";
 export default {
-  components: { SchemaForm },
+  mixins: [SchemaFormDemoTestMixin],
+  components: { SchemaForm, SchemaFormDemoTest },
   data() {
     return {
       formSchema: {
@@ -67,11 +75,13 @@ export default {
             name: "name",
             title: "名称",
             type: "el-input",
+            tip: "请填写5-10个字",
           },
           {
             name: "desc",
             title: "描述",
             type: "el-input",
+            col: 24,
             props: {
               rows: 2,
               type: "textarea",
@@ -118,47 +128,16 @@ export default {
         ],
       },
 
-      fromData: {},
-      options: [
-        {
-          value: "1",
-          label: "通过",
-        },
-        {
-          value: "2",
-          label: "审核中",
-        },
-        {
-          value: "3",
-          label: "拒绝",
-        },
-      ],
+      formData: {
+        number: 0,
+        price: 0,
+      },
+      formInitData: {
+        options: [],
+      },
     };
   },
-  created() {
-    this.fetch();
-  },
   methods: {
-    fetch() {
-      setTimeout(() => {
-        this.fromData = {
-          code: 2,
-          name: null,
-          desc: "sdfsdfsfsfs",
-          price: null,
-          number: 55,
-          date: "",
-          status: "1",
-          isUse: false,
-        };
-      }, 500);
-    },
-    fn1() {
-      this.fromData.status = "2";
-    },
-    fn2() {
-      this.formSchema.fileds.splice(0, 1);
-    },
     submitForm(formName) {
       this.$refs.SchemaForm.$refs[formName].validate((valid) => {
         if (valid) {

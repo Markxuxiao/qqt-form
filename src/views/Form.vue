@@ -19,11 +19,11 @@
       </el-form-item>
       <el-form-item prop="name">
         <template #label>
+          带帮助信息的 文本
           <el-tooltip placement="top" effect="light">
             <div slot="content">帮助信息帮助信息帮助信息。</div>
-            <i class="el-icon-warning-outline" style="color: #f56c6c"></i>
+            <i class="el-icon-question"></i>
           </el-tooltip>
-          带帮助信息的 文本
         </template>
         <el-input v-model="form.name"></el-input>
       </el-form-item>
@@ -91,6 +91,11 @@
           @click="handleTagesSelect"
         />
       </el-form-item>
+      <el-form-item label="数字 单选 多选 区间选">
+        <NumberPick v-model="value1" type="single" />
+        <NumberPick v-model="value2" type="multiple" />
+        <NumberPick v-model="value3" type="range" />
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit('form')">立即创建</el-button>
         <el-button @click="$emit('submit')">取消</el-button>
@@ -103,16 +108,21 @@
 import { Component, Vue } from "vue-property-decorator";
 import { Form } from "element-ui";
 
-import TagsSelectVue from "@/components/TagsSelect.vue";
-import { asDialog } from "@/components/asDialog.js";
-let tagIndex = 0;
+import TagsSelectVue from "../components/TagsSelect.vue";
+import NumberPick from "@/components/NumberPick/NumberPick.vue";
+import { asDialog } from "../components/asDialog.js";
+
 @Component({
   components: {
+    NumberPick,
     TagsSelectVue,
   },
 })
 export default class Home extends Vue {
   Dialog = null;
+  value1 = 2;
+  value2 = [2, 3];
+  value3 = [2, 3];
   form = {
     name: "",
     money: 0,
@@ -156,13 +166,13 @@ export default class Home extends Vue {
   handleTagesSelect() {
     this.Dialog = asDialog("async-form", () => this.onSubmit("form"));
     this.Dialog.open();
-    console.log("🚀 ~ Dialog:", this.Dialog)
+    console.log("🚀 ~ Dialog:", this.Dialog);
     let list = this.form.tages as unknown as { id: number; name222: string }[];
     // 模拟从弹窗选出来的数据
     let res = [
       {
         id: new Date().getTime(),
-        name222: "tag" + tagIndex++,
+        name222: "tag" + new Date().getTime(),
       },
     ];
     // 数组去重复
