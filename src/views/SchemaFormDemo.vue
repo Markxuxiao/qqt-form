@@ -31,8 +31,10 @@
 </template>
 <script>
 import SchemaForm from "../components/SchemaForm/SchemaForm.vue";
+// start 测试相关代码
 import SchemaFormDemoTest from "./SchemaFormDemoTest.vue";
 import SchemaFormDemoTestMixin from "./SchemaFormDemoTestMixin";
+// end 测试相关代码
 export default {
   mixins: [SchemaFormDemoTestMixin],
   components: { SchemaForm, SchemaFormDemoTest },
@@ -101,6 +103,13 @@ export default {
             name: "number",
             title: "数量",
             type: "el-input-number",
+            on: {
+              change: (val) => {
+                if (val > 3) {
+                  this.formData.status = "1";
+                }
+              },
+            },
           },
           {
             name: "date",
@@ -124,23 +133,46 @@ export default {
               "active-text": "启用",
               "inactive-text": "禁用",
             },
+            on: {
+              change: (val) => {
+                if (!val) {
+                  this.formSchemaFileds.status.hidden = true;
+                } else {
+                  this.formSchemaFileds.status.hidden = false;
+                }
+                console.log(val);
+              },
+            },
           },
         ],
       },
-
       formData: {
         number: 0,
         price: 0,
+        status: "",
       },
       formInitData: {
         options: [],
       },
     };
   },
+  computed: {
+    /**
+     * formSchem.fileds 转换为对象便于使用
+     */
+    formSchemaFileds() {
+      let obj = {};
+      this.formSchema.fileds.forEach((item) => {
+        obj[item.name] = item;
+      });
+      return obj;
+    },
+  },
   methods: {
-    submitForm(formName) {
-      this.$refs.SchemaForm.$refs[formName].validate((valid) => {
+    submitForm() {
+      this.$refs.SchemaForm.validate((valid) => {
         if (valid) {
+          console.log("🚀 ~  this.formData:", this.formData);
           alert("submit!");
         } else {
           console.log("error submit!!");
@@ -148,8 +180,8 @@ export default {
         }
       });
     },
-    resetForm(formName) {
-      this.$refs.SchemaForm.$refs[formName].resetFields();
+    resetForm() {
+      this.$refs.SchemaForm.resetFields();
     },
   },
 };

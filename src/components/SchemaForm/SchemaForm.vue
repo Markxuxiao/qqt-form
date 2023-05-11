@@ -1,7 +1,7 @@
 <template>
   <div v-if="formData">
     <el-form
-      :ref="formSchema.ref || 'schemaForm'"
+      :ref="formRef"
       :model="formData"
       :rules="formSchema.rules"
       label-width="80px"
@@ -40,6 +40,16 @@
   </div>
 </template>
 <script>
+/**
+ * 本文件作用：负责Form相关样式和功能
+ */
+
+/**
+ * props.formSchema.ref
+ * props.formSchema.rules 表单验证
+ * props.formSchema.fileds 表单字段
+ * props.data 初始化表单
+ */
 export default {
   props: ["formSchema", "data"],
   watch: {
@@ -53,10 +63,23 @@ export default {
       immediate: true,
     },
   },
+  computed: {
+    formRef() {
+      return this.formSchema.ref || "schemaForm";
+    },
+  },
   data() {
     return {
       formData: {},
     };
+  },
+  methods: {
+    validate(fn) {
+      return this.$refs[this.formRef].validate(fn);
+    },
+    resetFields() {
+      return this.$refs[this.formRef].resetFields();
+    },
   },
 };
 </script>

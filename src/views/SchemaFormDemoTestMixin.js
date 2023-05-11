@@ -2,9 +2,9 @@ export default {
   methods: {
     handleTestChange({ fnName, payload }) {
       try {
-        this[fnName](payload)
+        this[fnName](payload);
       } catch (err) {
-        throw new Error(err)
+        throw new Error(err);
       }
     },
     _test_fn1() {
@@ -25,7 +25,9 @@ export default {
     },
     _test_fn2() {
       let filed = this.formSchema.fileds.find((item) => item.name == "desc");
-      !filed.hidden ? this.$set(filed, "hidden", true) : this.$set(filed, "hidden", false);
+      !filed.hidden
+        ? this.$set(filed, "hidden", true)
+        : this.$set(filed, "hidden", false);
     },
     _test_fetch() {
       setTimeout(() => {
@@ -41,5 +43,5 @@ export default {
         };
       }, 500);
     },
-  }
-}
+  },
+};
