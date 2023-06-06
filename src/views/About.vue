@@ -3,13 +3,16 @@
     <NumberPick v-model="value1" type="single" />
     <NumberPick v-model="value2" type="multiple" />
     <NumberPick v-model="value3" type="range" />
+    <super-render />
   </div>
 </template>
 <script>
+import superRender from "./rander.jsx";
 import NumberPick from "@/components/NumberPick/NumberPick.vue";
 export default {
   components: {
     NumberPick,
+    superRender,
   },
   data() {
     return {

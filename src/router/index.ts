@@ -7,8 +7,18 @@ Vue.use(VueRouter);
 export const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Form",
+    name: "基础表单",
     component: Form,
+  },
+  {
+    path: "/SchemaFormDemo",
+    name: "配置表单",
+    component: () => import("../views/SchemaFormDemo.vue"),
+  },
+  {
+    path: "/SchemaRenderFormDemo",
+    name: "渲染函数配置表单",
+    component: () => import("../views/SchemaRenderFormDemo.vue"),
   },
   {
     path: "/about",
@@ -20,11 +30,7 @@ export const routes: Array<RouteConfig> = [
     name: "Detail",
     component: () => import("../views/Detail.vue"),
   },
-  {
-    path: "/SchemaFormDemo",
-    name: "SchemaFormDemo",
-    component: () => import("../views/SchemaFormDemo.vue"),
-  },
+
 ];
 
 const router = new VueRouter({
