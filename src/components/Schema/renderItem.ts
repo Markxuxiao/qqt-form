@@ -6,6 +6,9 @@ function renderItem(h, vm, config, renderLayout) {
           "el-form-item",
           {
             ref: `form-item-${config.name}`,
+            attrs: {
+              "data-comp": `form-item-${config.name}`,
+            },
             props: { prop: config.name },
           },
           [

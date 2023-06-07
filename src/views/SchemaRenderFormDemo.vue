@@ -38,10 +38,24 @@ import SchemaRenderForm from "../components/SchemaForm/SchemaRenderForm.vue";
 // start 测试相关代码
 import SchemaFormDemoTest from "./SchemaFormDemoTest.vue";
 import SchemaFormDemoTestMixin from "./SchemaFormDemoTestMixin";
+import simulator from "../components/Schema/simulator";
 // end 测试相关代码
 export default {
   mixins: [SchemaFormDemoTestMixin],
   components: { SchemaRenderForm, SchemaFormDemoTest },
+  mounted() {
+    new simulator();
+
+    document.addEventListener("elementClick", function (e) {
+      console.log("elementClick", e.detail);
+    });
+    document.addEventListener("elementBtnClick", function (e) {
+      console.log("elementBtnClick", e.detail);
+    });
+    document.addEventListener("elementDrop", function (e) {
+      console.log("elementDrop", e.detail);
+    });
+  },
   data() {
     return {
       formSchema: {
