@@ -1,3 +1,18 @@
+import { IDropInfo } from "./simulator-type";
+import { dispatchEvent } from "./event";
+
+function setDragData(event, data) {
+  const val = {
+    detail: data,
+  };
+  event.dataTransfer.setData("text/plain", JSON.stringify(val));
+}
+function getDragData(event) {
+  const data = JSON.parse(event.dataTransfer.getData("text")).detail;
+  event.dataTransfer.clearData();
+  return data;
+}
+
 export default class simulator {
   highlightElement; // 组件元素的框
   currentElement; // 当前点击的组件元素
@@ -16,6 +31,7 @@ export default class simulator {
     this._createDropLineElement();
     this.bindingElementClick();
     this.bindingCanvasChange();
+    this.bindingCompSnippetDragstart();
   }
   bindingElementClick() {
     const clickableElements = document.querySelectorAll("[data-comp]");
@@ -40,17 +56,26 @@ export default class simulator {
 
         const compElement = event.target.closest("[data-comp]");
         if (compElement) {
-          const fromElementId = event.dataTransfer.getData("text");
-          document.dispatchEvent(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            new CustomEvent("elementDrop", {
-              detail: {
-                fromElementId,
-                toElementId: compElement.getAttribute("data-comp"),
-              },
-            })
-          );
-          event.dataTransfer.clearData();
+          const dropInfo: IDropInfo = getDragData(event);
+          console.log("🚀 ~ dropInfo:", dropInfo);
+
+          switch (dropInfo.type) {
+            case "comp":
+              dispatchEvent("simulator-comp-move", {
+                fromId: dropInfo.id,
+                toId: compElement.getAttribute("data-comp"),
+              });
+              break;
+            case "comp-snippet":
+              dispatchEvent("simulator-comp-add", {
+                fromId: dropInfo.id,
+                toId: compElement.getAttribute("data-comp"),
+              });
+              break;
+            default:
+              break;
+          }
+
           this.setDropLineElementHidden();
         }
         // console.log("🚀 ~ dragover:", event);
@@ -77,14 +102,9 @@ export default class simulator {
 
           // 派发事件给编辑器使用
           const elementId = this.getComponentId();
-          document.dispatchEvent(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            new CustomEvent("elementClick", {
-              detail: {
-                elementId,
-              },
-            })
-          );
+          dispatchEvent("simulator-comp-click", {
+            elementId,
+          });
 
           event.preventDefault();
           return false;
@@ -139,20 +159,15 @@ export default class simulator {
     document.body.appendChild(this.highlightElement);
 
     this.highlightElement.addEventListener("dragstart", (event) => {
-      console.log("dragstart", event);
-      event.dataTransfer.setData("text/plain", this.getComponentId());
+      setDragData(event, {
+        type: "comp",
+        id: this.getComponentId(),
+      });
     });
     // 绑定事件
     const btns = this.highlightElement.querySelectorAll("[data-btn]");
 
     btns.forEach((element) => {
-      element.addEventListener("dragstart", (event) => {
-        console.log("dragstart", event);
-        event.dataTransfer.setData("text/plain", this.getComponentId());
-      });
-      element.addEventListener("drag", (event) => {
-        // console.log("drag", event);
-      });
       element.addEventListener("click", (event) => {
         btnEvent.call(this, event);
       });
@@ -161,15 +176,11 @@ export default class simulator {
     function btnEvent(event) {
       const elementId = this.getComponentId();
       const btnId = event.target.getAttribute("data-btn");
-      document.dispatchEvent(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        new CustomEvent("elementBtnClick", {
-          detail: {
-            elementId,
-            btnId,
-          },
-        })
-      );
+
+      dispatchEvent("simulator-comp-btn-click", {
+        elementId,
+        btnId,
+      });
     }
   }
   getComponentId() {
@@ -178,8 +189,21 @@ export default class simulator {
   getCurrentElement() {
     return this.currentElement;
   }
+  bindingCompSnippetDragstart() {
+    const compSnippetBtns = document.querySelectorAll("[data-comp-snippet]");
+    compSnippetBtns.forEach((element) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      element.addEventListener("dragstart", (event: any) => {
+        setDragData(event, {
+          type: "comp-snippet",
+          id: element.getAttribute("data-comp-snippet"),
+        });
+      });
+    });
+  }
   /**
    * 组件框跟随画布大小、滚动改变定位
+   * 设计态的辅助 UI 需要根据渲染态的视图变化而变化，比如渲染容器滚动了，此时通过 OffsetObserver 做一个动态的监听。
    */
   bindingCanvasChange() {
     // 画布

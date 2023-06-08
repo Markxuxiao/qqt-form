@@ -39,6 +39,7 @@ import SchemaRenderForm from "../components/SchemaForm/SchemaRenderForm.vue";
 import SchemaFormDemoTest from "./SchemaFormDemoTest.vue";
 import SchemaFormDemoTestMixin from "./SchemaFormDemoTestMixin";
 import simulator from "../components/Schema/simulator";
+import { onEvent } from "../components/Schema/simulator/event";
 // end 测试相关代码
 export default {
   mixins: [SchemaFormDemoTestMixin],
@@ -46,14 +47,17 @@ export default {
   mounted() {
     new simulator();
 
-    document.addEventListener("elementClick", function (e) {
-      console.log("elementClick", e.detail);
+    onEvent("simulator-comp-click", function (e) {
+      console.log("simulator-comp-click", e);
     });
-    document.addEventListener("elementBtnClick", function (e) {
-      console.log("elementBtnClick", e.detail);
+    onEvent("simulator-comp-btn-click", function (e) {
+      console.log("simulator-comp-btn-click", e);
     });
-    document.addEventListener("elementDrop", function (e) {
-      console.log("elementDrop", e.detail);
+    onEvent("simulator-comp-move", function (e) {
+      console.log("simulator-comp-move", e);
+    });
+    onEvent("simulator-comp-add", function (e) {
+      console.log("simulator-comp-add", e);
     });
   },
   data() {
