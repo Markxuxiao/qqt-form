@@ -25,6 +25,7 @@ export default class simulator {
   canvas; // 画布
   hoverElement; // 待选中指示框
   currentHoverElement; // 待选中指示框选中的下层组件元素
+  canvasPosition; // 画布位置
   constructor(canvas) {
     this.canvas = canvas || document.body;
     this.highlightElement = null;
@@ -33,8 +34,19 @@ export default class simulator {
     this.hoverElement = null;
     this.currentHoverElement = null;
     this.bindingEvent();
+    this.computedCanvasPosition();
   }
-
+  computedCanvasPosition() {
+    this.canvasPosition = this.canvas.getBoundingClientRect();
+  }
+  _setElementPosition(toolElement, compElement) {
+    const rect = compElement.getBoundingClientRect();
+    toolElement.style.left = `${rect.left - this.canvasPosition.left}px`;
+    toolElement.style.top = `${rect.top - this.canvasPosition.top}px`;
+    toolElement.style.width = `${rect.width}px`;
+    toolElement.style.height = `${rect.height}px`;
+    toolElement.style.display = "block";
+  }
   bindingEvent() {
     this._createHighlightElement();
     this._createDropLineElement();
@@ -90,12 +102,7 @@ export default class simulator {
       compElement.setAttribute("data-active", "true");
       this.currentElement = compElement;
 
-      const rect = this.currentElement.getBoundingClientRect();
-      this.highlightElement.style.left = `${rect.left}px`;
-      this.highlightElement.style.top = `${rect.top}px`;
-      this.highlightElement.style.width = `${rect.width}px`;
-      this.highlightElement.style.height = `${rect.height}px`;
-      this.highlightElement.style.display = "block";
+      this._setElementPosition(this.highlightElement, this.currentElement);
 
       // 派发事件给编辑器使用
       const elementId = this.getComponentId();
@@ -107,12 +114,7 @@ export default class simulator {
   onHover(compElement) {
     if (compElement) {
       this.currentHoverElement = compElement;
-      const rect = compElement.getBoundingClientRect();
-      this.hoverElement.style.left = `${rect.left}px`;
-      this.hoverElement.style.top = `${rect.top}px`;
-      this.hoverElement.style.width = `${rect.width}px`;
-      this.hoverElement.style.height = `${rect.height}px`;
-      this.hoverElement.style.display = "block";
+      this._setElementPosition(this.hoverElement, this.currentHoverElement);
     }
   }
   onDrop(compElement) {
@@ -151,13 +153,17 @@ export default class simulator {
     div.style.display = "none";
     div.style.zIndex = "1";
     this.dropLineElement = div;
-    document.body.appendChild(this.dropLineElement);
+    this.canvas.appendChild(this.dropLineElement);
   }
   setDropLineElementShow(element) {
     if (element) {
       const rect = element.getBoundingClientRect();
-      this.dropLineElement.style.left = `${rect.left}px`;
-      this.dropLineElement.style.top = `${rect.top}px`;
+      this.dropLineElement.style.left = `${
+        rect.left - this.canvasPosition.left
+      }px`;
+      this.dropLineElement.style.top = `${
+        rect.top - this.canvasPosition.top
+      }px`;
       this.dropLineElement.style.width = `${rect.width}px`;
       this.dropLineElement.style.display = "block";
     }
@@ -185,7 +191,7 @@ export default class simulator {
       </div>
     `;
     this.highlightElement = div;
-    document.body.appendChild(this.highlightElement);
+    this.canvas.appendChild(this.highlightElement);
 
     this.highlightElement.addEventListener("dragstart", (event) => {
       setDragData(event, {
@@ -229,7 +235,7 @@ export default class simulator {
     div.style.display = "block";
     div.style.zIndex = "1";
     this.hoverElement = div;
-    document.body.appendChild(this.hoverElement);
+    this.canvas.appendChild(this.hoverElement);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.hoverElement.addEventListener("click", (event: any) => {
@@ -265,27 +271,22 @@ export default class simulator {
    */
   bindingCanvasChange() {
     // todo 画布改变大小不一定是窗口改变大小
-    // 画布
+    const resetToolPosition = () => {
+      if (this.currentElement) {
+        this._setElementPosition(this.highlightElement, this.currentElement);
+      }
+    };
     const canvas = this.canvas;
     window.addEventListener("resize", () => {
-      const div = this.highlightElement;
-      if (div) {
-        const rect = this.currentElement.getBoundingClientRect();
-        div.style.left = `${rect.left}px`;
-        div.style.top = `${rect.top}px`;
-        div.style.width = `${rect.width}px`;
-        div.style.height = `${rect.height}px`;
-      }
+      this.computedCanvasPosition();
+      resetToolPosition();
     });
 
     // todo 画布滚动不一定是窗口滚动
     // 监听画布滚动事件
     canvas.addEventListener("scroll", () => {
-      const child = this.highlightElement;
-      if (child) {
-        child.style.top = `${canvas.scrollTop}px`;
-        child.style.left = `${canvas.scrollLeft}px`;
-      }
+      this.computedCanvasPosition();
+      resetToolPosition();
     });
   }
 }

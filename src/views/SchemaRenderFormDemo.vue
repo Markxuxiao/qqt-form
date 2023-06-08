@@ -2,7 +2,7 @@
   <div>
     <section style="display: flex; align-items: start">
       <SchemaFormDemoTest @emit="handleTestChange" style="width: 300px" />
-      <section>
+      <section id="cavas" style="position: relative">
         <SchemaRenderForm
           ref="SchemaForm"
           :formSchema="formSchema"
@@ -27,6 +27,7 @@
           <el-button @click="resetForm('ruleForm')">重置</el-button>
         </div>
       </section>
+      <section></section>
     </section>
     <section>
       {{ JSON.stringify(this.formData) }}
@@ -45,7 +46,7 @@ export default {
   mixins: [SchemaFormDemoTestMixin],
   components: { SchemaRenderForm, SchemaFormDemoTest },
   mounted() {
-    new simulator();
+    new simulator(document.getElementById("cavas"));
 
     onEvent("simulator-comp-click", function (e) {
       console.log("simulator-comp-click", e);
