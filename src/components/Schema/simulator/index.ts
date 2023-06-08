@@ -34,83 +34,80 @@ export default class simulator {
     this.bindingCompSnippetDragstart();
   }
   bindingElementClick() {
-    const clickableElements = document.querySelectorAll("[data-comp]");
-    clickableElements.forEach((element) => {
-      element.addEventListener("dragover", (event: any) => {
-        const compElement = event.target.closest("[data-comp]");
-        if (compElement) {
-          this.setDropLineElementShow(compElement);
-        }
-        event.preventDefault();
-        // console.log("🚀 ~ dragover:", event);
-      });
-      element.addEventListener("dragleave", (event: any) => {
-        const compElement = event.target.closest("[data-comp]");
-        if (compElement) {
-          this.setDropLineElementHidden();
-        }
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      element.addEventListener("drop", (event: any) => {
-        event.preventDefault();
-
-        const compElement = event.target.closest("[data-comp]");
-        if (compElement) {
-          const dropInfo: IDropInfo = getDragData(event);
-          console.log("🚀 ~ dropInfo:", dropInfo);
-
-          switch (dropInfo.type) {
-            case "comp":
-              dispatchEvent("simulator-comp-move", {
-                fromId: dropInfo.id,
-                toId: compElement.getAttribute("data-comp"),
-              });
-              break;
-            case "comp-snippet":
-              dispatchEvent("simulator-comp-add", {
-                fromId: dropInfo.id,
-                toId: compElement.getAttribute("data-comp"),
-              });
-              break;
-            default:
-              break;
-          }
-
-          this.setDropLineElementHidden();
-        }
-        // console.log("🚀 ~ dragover:", event);
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      element.addEventListener("click", (event: any) => {
-        const compElement = event.target.closest("[data-comp]");
-
-        if (compElement) {
-          // 重复点击
-          if (compElement.hasAttribute("data-active")) return false;
-          if (this.currentElement) {
-            this.currentElement.removeAttribute("data-active");
-          }
-          compElement.setAttribute("data-active", "true");
-          this.currentElement = compElement;
-
-          const rect = this.currentElement.getBoundingClientRect();
-          this.highlightElement.style.left = `${rect.left}px`;
-          this.highlightElement.style.top = `${rect.top}px`;
-          this.highlightElement.style.width = `${rect.width}px`;
-          this.highlightElement.style.height = `${rect.height}px`;
-          this.highlightElement.style.display = "block";
-
-          // 派发事件给编辑器使用
-          const elementId = this.getComponentId();
-          dispatchEvent("simulator-comp-click", {
-            elementId,
-          });
-
-          event.preventDefault();
-          return false;
-        }
-      });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    document.addEventListener("dragover", (event: any) => {
+      const compElement = event.target.closest("[data-comp]");
+      this.setDropLineElementShow(compElement);
+      event.preventDefault();
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    document.addEventListener("drop", (event: any) => {
+      event.preventDefault();
+      const compElement = event.target.closest("[data-comp]");
+      this.onDrop(compElement);
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    document.addEventListener("dragleave", (event: any) => {
+      const compElement = event.target.closest("[data-comp]");
+      if (compElement) {
+        this.setDropLineElementHidden();
+      }
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    document.addEventListener("click", (event: any) => {
+      const compElement = event.target.closest("[data-comp]");
+      this.onClick(compElement);
+      event.preventDefault();
+    });
+  }
+  onClick(compElement) {
+    if (compElement) {
+      // 重复点击
+      if (compElement.hasAttribute("data-active")) return false;
+      if (this.currentElement) {
+        this.currentElement.removeAttribute("data-active");
+      }
+      compElement.setAttribute("data-active", "true");
+      this.currentElement = compElement;
+
+      const rect = this.currentElement.getBoundingClientRect();
+      this.highlightElement.style.left = `${rect.left}px`;
+      this.highlightElement.style.top = `${rect.top}px`;
+      this.highlightElement.style.width = `${rect.width}px`;
+      this.highlightElement.style.height = `${rect.height}px`;
+      this.highlightElement.style.display = "block";
+
+      // 派发事件给编辑器使用
+      const elementId = this.getComponentId();
+      dispatchEvent("simulator-comp-click", {
+        elementId,
+      });
+    }
+  }
+  onDrop(compElement) {
+    if (compElement) {
+      const dropInfo: IDropInfo = getDragData(event);
+      console.log("🚀 ~ dropInfo:", dropInfo);
+
+      switch (dropInfo.type) {
+        case "comp":
+          dispatchEvent("simulator-comp-move", {
+            fromId: dropInfo.id,
+            toId: compElement.getAttribute("data-comp"),
+          });
+          break;
+        case "comp-snippet":
+          dispatchEvent("simulator-comp-add", {
+            fromId: dropInfo.id,
+            toId: compElement.getAttribute("data-comp"),
+          });
+          break;
+        default:
+          break;
+      }
+
+      this.setDropLineElementHidden();
+    }
   }
   _createDropLineElement() {
     const div = document.createElement("div");
@@ -126,12 +123,14 @@ export default class simulator {
     document.body.appendChild(this.dropLineElement);
   }
   setDropLineElementShow(element) {
-    const rect = element.getBoundingClientRect();
-    this.dropLineElement.style.left = `${rect.left}px`;
-    this.dropLineElement.style.top = `${rect.top}px`;
-    this.dropLineElement.style.width = `${rect.width}px`;
-    this.dropLineElement.style.height = `1px`;
-    this.dropLineElement.style.display = "block";
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      this.dropLineElement.style.left = `${rect.left}px`;
+      this.dropLineElement.style.top = `${rect.top}px`;
+      this.dropLineElement.style.width = `${rect.width}px`;
+      this.dropLineElement.style.height = `1px`;
+      this.dropLineElement.style.display = "block";
+    }
   }
   setDropLineElementHidden() {
     this.dropLineElement.style.display = "none";
@@ -164,6 +163,7 @@ export default class simulator {
         id: this.getComponentId(),
       });
     });
+
     // 绑定事件
     const btns = this.highlightElement.querySelectorAll("[data-btn]");
 
