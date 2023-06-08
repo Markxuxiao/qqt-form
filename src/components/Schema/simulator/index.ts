@@ -273,19 +273,18 @@ export default class simulator {
     // todo 画布改变大小不一定是窗口改变大小
     const resetToolPosition = () => {
       if (this.currentElement) {
+        this.computedCanvasPosition();
         this._setElementPosition(this.highlightElement, this.currentElement);
       }
     };
     const canvas = this.canvas;
     window.addEventListener("resize", () => {
-      this.computedCanvasPosition();
       resetToolPosition();
     });
 
     // todo 画布滚动不一定是窗口滚动
     // 监听画布滚动事件
     canvas.addEventListener("scroll", () => {
-      this.computedCanvasPosition();
       resetToolPosition();
     });
   }
