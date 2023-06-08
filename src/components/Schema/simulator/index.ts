@@ -1,5 +1,10 @@
 import { IDropInfo } from "./simulator-type";
 import { dispatchEvent } from "./event";
+import {
+  CANVAS_COMPONENT_TAG,
+  MENU_COMPONENT_TAG,
+  CANVAS_COMPONENT_BTN_TAG,
+} from "./config";
 
 function setDragData(event, data) {
   const val = {
@@ -18,46 +23,61 @@ export default class simulator {
   currentElement; // 当前点击的组件元素
   dropLineElement; // 拖拽瞄准线
   canvas; // 画布
+  hoverElement; // 待选中指示框
+  currentHoverElement; // 待选中指示框选中的下层组件元素
   constructor(canvas) {
     this.canvas = canvas || document.body;
     this.highlightElement = null;
     this.currentElement = null;
     this.dropLineElement = null;
+    this.hoverElement = null;
+    this.currentHoverElement = null;
     this.bindingEvent();
   }
 
   bindingEvent() {
     this._createHighlightElement();
     this._createDropLineElement();
+    this._createHoverElement();
     this.bindingElementClick();
     this.bindingCanvasChange();
     this.bindingCompSnippetDragstart();
   }
   bindingElementClick() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    document.addEventListener("dragover", (event: any) => {
-      const compElement = event.target.closest("[data-comp]");
+    this.canvas.addEventListener("dragover", (event: any) => {
+      const compElement = event.target.closest(`[${CANVAS_COMPONENT_TAG}]`);
       this.setDropLineElementShow(compElement);
       event.preventDefault();
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    document.addEventListener("drop", (event: any) => {
+    this.canvas.addEventListener("drop", (event: any) => {
       event.preventDefault();
-      const compElement = event.target.closest("[data-comp]");
+      const compElement = event.target.closest(`[${CANVAS_COMPONENT_TAG}]`);
       this.onDrop(compElement);
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    document.addEventListener("dragleave", (event: any) => {
-      const compElement = event.target.closest("[data-comp]");
+    this.canvas.addEventListener("dragleave", (event: any) => {
+      const compElement = event.target.closest(`[${CANVAS_COMPONENT_TAG}]`);
       if (compElement) {
         this.setDropLineElementHidden();
       }
     });
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    document.addEventListener("click", (event: any) => {
-      const compElement = event.target.closest("[data-comp]");
-      this.onClick(compElement);
-      event.preventDefault();
+    this.canvas.addEventListener("mouseover", (event: any) => {
+      const compElement = event.target.closest(`[${CANVAS_COMPONENT_TAG}]`);
+      if (event.target.closest(`[data-comp-highlight]`)) {
+        this.hoverElement.style.display = "none";
+        return false;
+      }
+      this.onHover(compElement);
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.canvas.addEventListener("mouseleave", (event: any) => {
+      console.log("mouseout");
+
+      this.hoverElement.style.display = "none";
     });
   }
   onClick(compElement) {
@@ -84,6 +104,17 @@ export default class simulator {
       });
     }
   }
+  onHover(compElement) {
+    if (compElement) {
+      this.currentHoverElement = compElement;
+      const rect = compElement.getBoundingClientRect();
+      this.hoverElement.style.left = `${rect.left}px`;
+      this.hoverElement.style.top = `${rect.top}px`;
+      this.hoverElement.style.width = `${rect.width}px`;
+      this.hoverElement.style.height = `${rect.height}px`;
+      this.hoverElement.style.display = "block";
+    }
+  }
   onDrop(compElement) {
     if (compElement) {
       const dropInfo: IDropInfo = getDragData(event);
@@ -93,13 +124,13 @@ export default class simulator {
         case "comp":
           dispatchEvent("simulator-comp-move", {
             fromId: dropInfo.id,
-            toId: compElement.getAttribute("data-comp"),
+            toId: compElement.getAttribute(CANVAS_COMPONENT_TAG),
           });
           break;
         case "comp-snippet":
           dispatchEvent("simulator-comp-add", {
             fromId: dropInfo.id,
-            toId: compElement.getAttribute("data-comp"),
+            toId: compElement.getAttribute(CANVAS_COMPONENT_TAG),
           });
           break;
         default:
@@ -115,8 +146,8 @@ export default class simulator {
     div.style.left = `0px`;
     div.style.top = `0px`;
     div.style.width = `0px`;
-    div.style.height = `0px`;
-    div.style.border = "1px solid blue";
+    div.style.height = `4px`;
+    div.style.background = "#66b1ff";
     div.style.display = "none";
     div.style.zIndex = "1";
     this.dropLineElement = div;
@@ -128,7 +159,6 @@ export default class simulator {
       this.dropLineElement.style.left = `${rect.left}px`;
       this.dropLineElement.style.top = `${rect.top}px`;
       this.dropLineElement.style.width = `${rect.width}px`;
-      this.dropLineElement.style.height = `1px`;
       this.dropLineElement.style.display = "block";
     }
   }
@@ -165,7 +195,9 @@ export default class simulator {
     });
 
     // 绑定事件
-    const btns = this.highlightElement.querySelectorAll("[data-btn]");
+    const btns = this.highlightElement.querySelectorAll(
+      `[${CANVAS_COMPONENT_BTN_TAG}]`
+    );
 
     btns.forEach((element) => {
       element.addEventListener("click", (event) => {
@@ -175,7 +207,7 @@ export default class simulator {
 
     function btnEvent(event) {
       const elementId = this.getComponentId();
-      const btnId = event.target.getAttribute("data-btn");
+      const btnId = event.target.getAttribute(CANVAS_COMPONENT_BTN_TAG);
 
       dispatchEvent("simulator-comp-btn-click", {
         elementId,
@@ -183,20 +215,46 @@ export default class simulator {
       });
     }
   }
+  _createHoverElement() {
+    const div = document.createElement("div");
+
+    div.setAttribute("data-comp-hover", ""); // 标记已经高亮的元素
+    div.style.position = "absolute";
+    div.style.left = `0px`;
+    div.style.top = `0px`;
+    div.style.width = `0px`;
+    div.style.height = `0px`;
+    div.style.border = "1px dashed blue";
+    div.style.background = "#c4defa63";
+    div.style.display = "block";
+    div.style.zIndex = "1";
+    this.hoverElement = div;
+    document.body.appendChild(this.hoverElement);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.hoverElement.addEventListener("click", (event: any) => {
+      event.stopPropagation();
+      event.preventDefault();
+      this.onClick(this.currentHoverElement);
+      this.hoverElement.style.display = "none";
+    });
+  }
   getComponentId() {
-    return this.getCurrentElement().getAttribute("data-comp");
+    return this.getCurrentElement().getAttribute(CANVAS_COMPONENT_TAG);
   }
   getCurrentElement() {
     return this.currentElement;
   }
   bindingCompSnippetDragstart() {
-    const compSnippetBtns = document.querySelectorAll("[data-comp-snippet]");
+    const compSnippetBtns = document.querySelectorAll(
+      `[${MENU_COMPONENT_TAG}]`
+    );
     compSnippetBtns.forEach((element) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       element.addEventListener("dragstart", (event: any) => {
         setDragData(event, {
           type: "comp-snippet",
-          id: element.getAttribute("data-comp-snippet"),
+          id: element.getAttribute(MENU_COMPONENT_TAG),
         });
       });
     });
@@ -206,8 +264,9 @@ export default class simulator {
    * 设计态的辅助 UI 需要根据渲染态的视图变化而变化，比如渲染容器滚动了，此时通过 OffsetObserver 做一个动态的监听。
    */
   bindingCanvasChange() {
+    // todo 画布改变大小不一定是窗口改变大小
     // 画布
-    const parent = this.canvas;
+    const canvas = this.canvas;
     window.addEventListener("resize", () => {
       const div = this.highlightElement;
       if (div) {
@@ -219,12 +278,13 @@ export default class simulator {
       }
     });
 
+    // todo 画布滚动不一定是窗口滚动
     // 监听画布滚动事件
-    parent.addEventListener("scroll", () => {
+    canvas.addEventListener("scroll", () => {
       const child = this.highlightElement;
       if (child) {
-        child.style.top = `${parent.scrollTop}px`;
-        child.style.left = `${parent.scrollLeft}px`;
+        child.style.top = `${canvas.scrollTop}px`;
+        child.style.left = `${canvas.scrollLeft}px`;
       }
     });
   }
