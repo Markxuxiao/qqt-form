@@ -62,7 +62,7 @@ export default {
       console.log("simulator-comp-click", e);
       let elementId = e.elementId;
       that.compSchema = that.formSchema.children.filter(
-        (item) => item.name == elementId
+        (item) => item.id == elementId
       )[0];
     });
     onEvent(EVENT_NAMES.compBtnClick, function (e) {
@@ -108,7 +108,8 @@ export default {
             id: "2",
             name: "code",
             title: "编号",
-            type: "el-input",
+            $comp: "el-input",
+            type: "form",
             props: {
               placeholder: "sdfsfsfsfs",
               disabled: true,
@@ -118,14 +119,16 @@ export default {
             id: "3",
             name: "name",
             title: "名称",
-            type: "el-input",
+            $comp: "el-input",
+            type: "form",
             tip: "请填写5-10个字",
           },
           {
             id: "4",
             name: "desc",
             title: "描述",
-            type: "el-input",
+            $comp: "el-input",
+            type: "form",
             col: 24,
             props: {
               rows: 2,
@@ -136,7 +139,8 @@ export default {
             id: "5",
             name: "price",
             title: "金额",
-            type: "el-input-number",
+            $comp: "el-input-number",
+            type: "form",
             on: {
               change: (val) => {
                 console.log(val);
@@ -147,7 +151,8 @@ export default {
             id: "6",
             name: "number",
             title: "数量",
-            type: "el-input-number",
+            $comp: "el-input-number",
+            type: "form",
             on: {
               change: (val) => {
                 if (val > 3) {
@@ -160,7 +165,8 @@ export default {
             id: "7",
             name: "date",
             title: "日期",
-            type: "el-date-picker",
+            $comp: "el-date-picker",
+            type: "form",
             props: {
               type: "date",
               "value-format": "yyyy-MM-dd",
@@ -176,7 +182,8 @@ export default {
             id: "9",
             name: "isUse",
             title: "是否启用",
-            type: "el-switch",
+            $comp: "el-switch",
+            type: "form",
             props: {
               "active-text": "启用",
               "inactive-text": "禁用",

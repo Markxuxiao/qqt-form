@@ -1,6 +1,7 @@
 import { IDropInfo } from "./simulator-type";
 import { dispatchEvent } from "./event";
 import { CANVAS_COMPONENT_TAG, MENU_COMPONENT_TAG } from "./config";
+import { set } from "vue/types/umd";
 
 /**
  * 画布被选中组件操作按钮标识
@@ -28,6 +29,7 @@ function getDragData(event) {
 export default class simulator {
   highlightElement; // 组件元素的框
   currentElement; // 当前点击的组件元素
+  currentElementId;
   dropLineElement; // 拖拽瞄准线
   canvas; // 画布
   hoverElement; // 待选中指示框
@@ -37,6 +39,7 @@ export default class simulator {
     this.canvas = canvas || document.body;
     this.highlightElement = null;
     this.currentElement = null;
+    this.currentElementId = null;
     this.dropLineElement = null;
     this.hoverElement = null;
     this.currentHoverElement = null;
@@ -102,13 +105,13 @@ export default class simulator {
   onClick(compElement) {
     if (compElement) {
       // 重复点击
-      if (compElement.hasAttribute("data-active")) return false;
-      if (this.currentElement) {
-        this.currentElement.removeAttribute("data-active");
-      }
-      compElement.setAttribute("data-active", "true");
+      // if (compElement.hasAttribute("data-active")) return false;
+      // if (this.currentElement) {
+      //   this.currentElement.removeAttribute("data-active");
+      // }
+      // compElement.setAttribute("data-active", "true");
       this.currentElement = compElement;
-
+      this.currentElementId = this.getComponentId();
       this._setElementPosition(this.highlightElement, this.currentElement);
 
       // 派发事件给编辑器使用
@@ -117,6 +120,11 @@ export default class simulator {
         elementId,
       });
     }
+  }
+  setCurrentElementById(id) {
+    this.currentElement = document.querySelectorAll(
+      `[${CANVAS_COMPONENT_TAG}="${id}"]`
+    )[0];
   }
   onHover(compElement) {
     if (compElement) {
@@ -147,6 +155,13 @@ export default class simulator {
       }
 
       this.setDropLineElementHidden();
+
+      // fix vue渲染后重新定位当前选中组件
+      setTimeout(() => {
+        // vue重新渲染后 内存里的currentElement数据居然会变。这里根据id重新取一次 todo那就不应该存储这个dom值，而是存id
+        this.setCurrentElementById(this.currentElementId);
+        this._setElementPosition(this.highlightElement, this.currentElement);
+      }, 50);
     }
   }
   _createDropLineElement() {
@@ -295,4 +310,13 @@ export default class simulator {
       resetToolPosition();
     });
   }
+  /**
+   * 添加投放感应区
+   */
+  addSensor() {}
+  /**
+   *
+   * @returns 移除投放感应
+   */
+  removeSensor() {}
 }

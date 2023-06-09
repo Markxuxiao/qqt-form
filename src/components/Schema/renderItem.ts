@@ -28,7 +28,7 @@ function renderItem(h, vm, config, renderLayout) {
                   )
                 : null,
             ]),
-            h(config.type, {
+            h(config.$comp, {
               props: { value: vm.formData[config.name] },
               on: {
                 input: function (value) {
@@ -53,7 +53,7 @@ function renderItem(h, vm, config, renderLayout) {
     return layoutRender();
   } else if (config.type == "slot") {
     return slotRender(config.name);
-  } else {
+  } else if (config.type == "form") {
     return editRender();
   }
 }
