@@ -60,7 +60,7 @@ export default {
         },
         [
           h("el-row", [
-            this.formSchema.fileds.map((filed) =>
+            this.formSchema.children.map((filed) =>
               h("el-col", { props: { span: filed.col || 8 } }, [
                 renderItem(h, this, filed, renderLayout),
               ])

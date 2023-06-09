@@ -125,14 +125,14 @@ export default class simulator {
       switch (dropInfo.type) {
         case "comp":
           dispatchEvent("simulator-comp-move", {
-            fromId: dropInfo.id,
-            toId: compElement.getAttribute(CANVAS_COMPONENT_TAG),
+            fromElementId: dropInfo.id,
+            toElementId: compElement.getAttribute(CANVAS_COMPONENT_TAG),
           });
           break;
         case "comp-snippet":
           dispatchEvent("simulator-comp-add", {
-            fromId: dropInfo.id,
-            toId: compElement.getAttribute(CANVAS_COMPONENT_TAG),
+            fromElementId: dropInfo.id,
+            toElementId: compElement.getAttribute(CANVAS_COMPONENT_TAG),
           });
           break;
         default:

@@ -7,7 +7,7 @@ function renderItem(h, vm, config, renderLayout) {
           {
             ref: `form-item-${config.name}`,
             attrs: {
-              "data-comp": `form-item-${config.name}`,
+              "data-comp-id": `${config.id}`,
             },
             props: { prop: config.name },
           },

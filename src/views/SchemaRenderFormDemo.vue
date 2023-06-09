@@ -2,7 +2,7 @@
   <div>
     <section style="display: flex; align-items: start">
       <SchemaFormDemoTest @emit="handleTestChange" style="width: 300px" />
-      <section id="cavas" style="position: relative">
+      <section id="cavas" style="position: relative; min-width: 900px">
         <SchemaRenderForm
           ref="SchemaForm"
           :formSchema="formSchema"
@@ -27,10 +27,17 @@
           <el-button @click="resetForm('ruleForm')">重置</el-button>
         </div>
       </section>
-      <section></section>
+      <section style="width: 500px">
+        <Setter :compSchema="compSchema" />
+      </section>
     </section>
     <section>
+      <div>formData</div>
       {{ JSON.stringify(this.formData) }}
+    </section>
+    <section>
+      <div>formSchema</div>
+      {{ JSON.stringify(this.formSchema) }}
     </section>
   </div>
 </template>
@@ -41,21 +48,29 @@ import SchemaFormDemoTest from "./SchemaFormDemoTest.vue";
 import SchemaFormDemoTestMixin from "./SchemaFormDemoTestMixin";
 import simulator from "../components/Schema/simulator";
 import { onEvent } from "../components/Schema/simulator/event";
+import Setter from "../components/Schema/setter";
+import { treeClass } from "../components/Schema/model";
 // end 测试相关代码
 export default {
   mixins: [SchemaFormDemoTestMixin],
-  components: { SchemaRenderForm, SchemaFormDemoTest },
+  components: { SchemaRenderForm, SchemaFormDemoTest, Setter },
   mounted() {
+    let treeModel = new treeClass(this.formSchema);
     new simulator(document.getElementById("cavas"));
-
-    onEvent("simulator-comp-click", function (e) {
+    let that = this;
+    onEvent("simulator-comp-click", (e) => {
       console.log("simulator-comp-click", e);
+      let elementId = e.elementId;
+      that.compSchema = that.formSchema.children.filter(
+        (item) => item.name == elementId
+      )[0];
     });
     onEvent("simulator-comp-btn-click", function (e) {
       console.log("simulator-comp-btn-click", e);
     });
     onEvent("simulator-comp-move", function (e) {
       console.log("simulator-comp-move", e);
+      treeModel.insertBefore(e.fromElementId, e.toElementId);
     });
     onEvent("simulator-comp-add", function (e) {
       console.log("simulator-comp-add", e);
@@ -63,7 +78,9 @@ export default {
   },
   data() {
     return {
+      compSchema: null,
       formSchema: {
+        id: "1",
         ref: "ruleForm",
         rules: {
           name: [
@@ -86,8 +103,9 @@ export default {
             { required: true, message: "请填写活动形式", trigger: "blur" },
           ],
         },
-        fileds: [
+        children: [
           {
+            id: "2",
             name: "code",
             title: "编号",
             type: "el-input",
@@ -97,12 +115,14 @@ export default {
             },
           },
           {
+            id: "3",
             name: "name",
             title: "名称",
             type: "el-input",
             tip: "请填写5-10个字",
           },
           {
+            id: "4",
             name: "desc",
             title: "描述",
             type: "el-input",
@@ -113,6 +133,7 @@ export default {
             },
           },
           {
+            id: "5",
             name: "price",
             title: "金额",
             type: "el-input-number",
@@ -123,6 +144,7 @@ export default {
             },
           },
           {
+            id: "6",
             name: "number",
             title: "数量",
             type: "el-input-number",
@@ -135,6 +157,7 @@ export default {
             },
           },
           {
+            id: "7",
             name: "date",
             title: "日期",
             type: "el-date-picker",
@@ -144,11 +167,13 @@ export default {
             },
           },
           {
+            id: 8,
             name: "status",
             title: "状态",
             type: "slot",
           },
           {
+            id: "9",
             name: "isUse",
             title: "是否启用",
             type: "el-switch",
@@ -185,7 +210,7 @@ export default {
      */
     formSchemaFileds() {
       let obj = {};
-      this.formSchema.fileds.forEach((item) => {
+      this.formSchema.children.forEach((item) => {
         obj[item.name] = item;
       });
       return obj;
