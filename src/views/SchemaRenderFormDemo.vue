@@ -46,7 +46,7 @@ import SchemaRenderForm from "../components/SchemaForm/SchemaRenderForm.vue";
 // start 测试相关代码
 import SchemaFormDemoTest from "./SchemaFormDemoTest.vue";
 import SchemaFormDemoTestMixin from "./SchemaFormDemoTestMixin";
-import simulator from "../components/Schema/simulator";
+import simulator, { EVENT_NAMES } from "../components/Schema/simulator";
 import { onEvent } from "../components/Schema/simulator/event";
 import Setter from "../components/Schema/setter";
 import { treeClass } from "../components/Schema/model";
@@ -58,21 +58,21 @@ export default {
     let treeModel = new treeClass(this.formSchema);
     new simulator(document.getElementById("cavas"));
     let that = this;
-    onEvent("simulator-comp-click", (e) => {
+    onEvent(EVENT_NAMES.compClick, (e) => {
       console.log("simulator-comp-click", e);
       let elementId = e.elementId;
       that.compSchema = that.formSchema.children.filter(
         (item) => item.name == elementId
       )[0];
     });
-    onEvent("simulator-comp-btn-click", function (e) {
+    onEvent(EVENT_NAMES.compBtnClick, function (e) {
       console.log("simulator-comp-btn-click", e);
     });
-    onEvent("simulator-comp-move", function (e) {
+    onEvent(EVENT_NAMES.compMove, function (e) {
       console.log("simulator-comp-move", e);
       treeModel.insertBefore(e.fromElementId, e.toElementId);
     });
-    onEvent("simulator-comp-add", function (e) {
+    onEvent(EVENT_NAMES.compAdd, function (e) {
       console.log("simulator-comp-add", e);
     });
   },

@@ -6,6 +6,13 @@ import {
   CANVAS_COMPONENT_BTN_TAG,
 } from "./config";
 
+export enum EVENT_NAMES {
+  compClick = "simulator-comp-click",
+  compBtnClick = "simulator-comp-btn-click",
+  compMove = "simulator-comp-move",
+  compAdd = "simulator-comp-add",
+}
+
 function setDragData(event, data) {
   const val = {
     detail: data,
@@ -106,7 +113,7 @@ export default class simulator {
 
       // 派发事件给编辑器使用
       const elementId = this.getComponentId();
-      dispatchEvent("simulator-comp-click", {
+      dispatchEvent(EVENT_NAMES.compClick, {
         elementId,
       });
     }
@@ -124,13 +131,13 @@ export default class simulator {
 
       switch (dropInfo.type) {
         case "comp":
-          dispatchEvent("simulator-comp-move", {
+          dispatchEvent(EVENT_NAMES.compMove, {
             fromElementId: dropInfo.id,
             toElementId: compElement.getAttribute(CANVAS_COMPONENT_TAG),
           });
           break;
         case "comp-snippet":
-          dispatchEvent("simulator-comp-add", {
+          dispatchEvent(EVENT_NAMES.compAdd, {
             fromElementId: dropInfo.id,
             toElementId: compElement.getAttribute(CANVAS_COMPONENT_TAG),
           });
@@ -215,7 +222,7 @@ export default class simulator {
       const elementId = this.getComponentId();
       const btnId = event.target.getAttribute(CANVAS_COMPONENT_BTN_TAG);
 
-      dispatchEvent("simulator-comp-btn-click", {
+      dispatchEvent(EVENT_NAMES.compBtnClick, {
         elementId,
         btnId,
       });
