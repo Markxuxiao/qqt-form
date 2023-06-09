@@ -1,11 +1,11 @@
 import { IDropInfo } from "./simulator-type";
 import { dispatchEvent } from "./event";
-import {
-  CANVAS_COMPONENT_TAG,
-  MENU_COMPONENT_TAG,
-  CANVAS_COMPONENT_BTN_TAG,
-} from "./config";
+import { CANVAS_COMPONENT_TAG, MENU_COMPONENT_TAG } from "./config";
 
+/**
+ * 画布被选中组件操作按钮标识
+ */
+export const CANVAS_COMPONENT_BTN_TAG = "data-btn";
 export enum EVENT_NAMES {
   compClick = "simulator-comp-click",
   compBtnClick = "simulator-comp-btn-click",
