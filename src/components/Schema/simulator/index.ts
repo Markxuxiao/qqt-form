@@ -93,6 +93,9 @@ export default class simulator {
         this.hoverElement.style.display = "none";
         return false;
       }
+      if (event.target.closest(`[data-comp-hover]`)) {
+        return false;
+      }
       this.onHover(compElement);
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -130,6 +133,8 @@ export default class simulator {
     if (compElement) {
       this.currentHoverElement = compElement;
       this._setElementPosition(this.hoverElement, this.currentHoverElement);
+    } else {
+      this.hoverElement.style.display = "none";
     }
   }
   onDrop(compElement) {
